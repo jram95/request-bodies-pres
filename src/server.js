@@ -5,9 +5,10 @@ const {Client} = require("pg");
 const app = express();
 dotenv.config();
 
-const config = {
-  connectionString: process.env.DATABASE_URL,
-};
+// const config = {
+//   connectionString: process.env.DATABASE_URL,
+// };
+
 
 // enable server to read body as JSON data
 app.use(express.json());
@@ -27,14 +28,14 @@ app.post("/comment", (req, res) => {
 app.post("/comment-sql", async (req, res) => {
   try {
   const {user_id, comment} = req.body;
-  const client = new Client(config);
+  const client = new Client({ database: 'comments' });
   console.log(client)
   await client.connect();
-  const result = await client.query("insert into comments (user_id, comment) values ($1, $2)) returning *", 
+  const result = await client.query("insert into comments (user_id, comment) values ($1, $2) returning *", 
   [user_id, comment]);
-  await client.end();
 
-  res.json(result.rows)
+  res.json(result.rows);
+  await client.end();
   }
 
   catch (err){
